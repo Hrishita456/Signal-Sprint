@@ -1,5 +1,5 @@
 import { Link } from "react-router";
-import { Upload, Zap, Target } from "lucide-react";
+import { Upload } from "lucide-react";
 import { motion } from "motion/react";
 
 export function Home() {
@@ -32,32 +32,16 @@ export function Home() {
           </Link>
         </motion.div>
 
-        {/* Stats Cards */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
-          className="grid gap-6 md:grid-cols-2"
+          className="rounded-2xl border border-primary/20 bg-primary/5 px-8 py-6 text-center"
         >
-          <div className="flex items-center gap-6 rounded-2xl bg-white p-8 shadow-lg">
-            <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Target className="size-8 text-primary" />
-            </div>
-            <div>
-              <div className="mb-1 text-sm text-muted-foreground">Detection Accuracy</div>
-              <div className="text-4xl font-bold text-foreground">98%</div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6 rounded-2xl bg-white p-8 shadow-lg">
-            <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-              <Zap className="size-8 text-primary" />
-            </div>
-            <div>
-              <div className="mb-1 text-sm text-muted-foreground">Response Time</div>
-              <div className="text-4xl font-bold text-foreground">&lt;2s</div>
-            </div>
-          </div>
+          <p className="text-lg font-medium text-foreground">
+            Sustainability Impact: Faster waste-response routing helps keep IIT Kanpur cleaner,
+            reduce unmanaged spill zones, and support safer campus mobility.
+          </p>
         </motion.div>
 
         {/* Info Section */}
