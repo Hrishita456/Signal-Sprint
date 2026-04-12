@@ -277,7 +277,7 @@ export function History() {
                     ) : null}
                   </div>
 
-                  <div className="min-h-28 rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="min-h-28 rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
                     <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                       Coordinates
                     </div>
@@ -290,7 +290,7 @@ export function History() {
                           href={`https://maps.google.com/?q=${item.geoTag.latitude},${item.geoTag.longitude}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                          className="mt-2 inline-flex items-center gap-1 rounded-xl bg-primary px-4 py-2 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary/90"
                         >
                           <MapPin className="size-4" />
                           Open in Maps

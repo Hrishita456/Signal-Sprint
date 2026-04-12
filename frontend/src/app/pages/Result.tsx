@@ -197,7 +197,7 @@ export function Result() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.48 }}
-                className="rounded-3xl bg-white p-8 shadow-xl"
+                className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-8 shadow-xl"
               >
                 <h3 className="mb-4 text-xl font-semibold text-foreground">Location Coordinates</h3>
                 <div className="space-y-2 text-sm">
@@ -211,7 +211,7 @@ export function Result() {
                     href={`https://maps.google.com/?q=${historyItem.geoTag.latitude},${historyItem.geoTag.longitude}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-primary/90"
+                    className="mt-2 inline-flex items-center rounded-xl bg-primary px-5 py-3 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary/90"
                   >
                     Open in Maps
                   </a>
