@@ -270,7 +270,7 @@ export function History() {
                       Ward: {item.geoTag?.ward ?? "Not captured"}
                     </div>
                     {item.ticket ? (
-                      <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
+                      <div className="inline-flex items-center gap-2 rounded-full border border-pink-200 bg-pink-100 px-3 py-1 text-xs font-semibold text-pink-800">
                         <Ticket className="size-3.5" />
                         {item.ticket.caseId} · {item.ticket.status}
                       </div>
