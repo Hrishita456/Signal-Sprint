@@ -239,7 +239,7 @@ export function History() {
                 </div>
 
                 {/* Content */}
-                <div className="grid flex-1 items-center gap-4 lg:grid-cols-[minmax(0,1fr)_240px_120px]">
+                <div className="grid flex-1 items-center gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
                   <div className="space-y-2">
                     <div
                       className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
@@ -299,12 +299,6 @@ export function History() {
                     ) : (
                       <div className="text-sm text-muted-foreground">Location not captured</div>
                     )}
-                  </div>
-
-                  {/* Confidence */}
-                  <div className="text-right">
-                    <div className="mb-2 text-2xl font-bold text-foreground">0 / 1</div>
-                    <div className="text-sm text-muted-foreground">Binary Output</div>
                   </div>
                 </div>
               </div>
