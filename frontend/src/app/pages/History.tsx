@@ -143,28 +143,8 @@ export function History() {
                 </div>
               </div>
             </div>
-            <div className="mt-5">
-              <h3 className="mb-2 text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Top Hotspots
-              </h3>
-              <div className="space-y-2">
-                {analytics.topHotspots.length > 0 ? (
-                  analytics.topHotspots.map(([ward, count]) => (
-                    <div
-                      key={ward}
-                      className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2 text-sm"
-                    >
-                      <span className="inline-flex items-center gap-2 text-foreground">
-                        <MapPin className="size-4 text-destructive" />
-                        {ward}
-                      </span>
-                      <span className="font-semibold text-foreground">{count} action cases</span>
-                    </div>
-                  ))
-                ) : (
-                  <p className="text-sm text-muted-foreground">No hotspots yet.</p>
-                )}
-              </div>
+            <div className="mt-5 rounded-lg border border-border bg-muted/30 px-3 py-3 text-sm text-muted-foreground">
+              Ward counts are shown in the table for action-required, no-action, and total reports.
             </div>
           </div>
 
