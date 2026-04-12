@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { Upload as UploadIcon, Camera, FolderOpen } from "lucide-react";
 import { motion } from "motion/react";
-import { addHistoryItem } from "../lib/history";
+import { addHistoryItem, classifyWard, createCaseId } from "../lib/history";
 
 type PredictionResponse = {
   decision: number;
@@ -13,6 +13,32 @@ type PredictionResponse = {
 
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:8000";
+
+async function getCurrentGeoTag(): Promise<{ latitude: number; longitude: number; ward: string } | undefined> {
+  if (!navigator.geolocation) {
+    return undefined;
+  }
+
+  try {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 8000,
+        maximumAge: 60000,
+      });
+    });
+
+    const latitude = position.coords.latitude;
+    const longitude = position.coords.longitude;
+    return {
+      latitude,
+      longitude,
+      ward: classifyWard(latitude, longitude),
+    };
+  } catch {
+    return undefined;
+  }
+}
 
 export function Upload() {
   const [isDragging, setIsDragging] = useState(false);
@@ -74,6 +100,7 @@ export function Upload() {
     setErrorMessage("");
 
     try {
+      const geoTag = await getCurrentGeoTag();
       const formData = new FormData();
       formData.append("file", selectedFile);
 
@@ -88,17 +115,31 @@ export function Upload() {
       }
 
       const prediction = payload as PredictionResponse;
+      const nowIso = new Date().toISOString();
+      const shouldCreateTicket = prediction.decision === 1;
+      const historyId = crypto.randomUUID();
+
       addHistoryItem({
-        id: crypto.randomUUID(),
+        id: historyId,
         thumbnail: preview,
         result: prediction.decision === 1 ? 1 : 0,
-        timestamp: new Date().toISOString(),
+        timestamp: nowIso,
         label: prediction.label,
         modelVersion: prediction.model_version,
+        geoTag,
+        ticket: shouldCreateTicket
+          ? {
+              caseId: createCaseId(new Date(nowIso)),
+              status: "Open",
+              createdAt: nowIso,
+              updatedAt: nowIso,
+            }
+          : undefined,
       });
 
       navigate("/result", {
         state: {
+          historyId,
           image: preview,
           prediction,
         },

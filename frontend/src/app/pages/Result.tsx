@@ -1,7 +1,8 @@
 import { Link, useLocation, useNavigate } from "react-router";
 import { AlertCircle, CheckCircle2, Upload } from "lucide-react";
 import { motion } from "motion/react";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { getHistoryItemById, updateHistoryItem, type StoredHistoryItem, type TicketStatus } from "../lib/history";
 
 type PredictionResponse = {
   decision: number;
@@ -11,6 +12,7 @@ type PredictionResponse = {
 };
 
 type ResultLocationState = {
+  historyId?: string;
   image?: string;
   prediction?: PredictionResponse;
 };
@@ -19,18 +21,69 @@ export function Result() {
   const location = useLocation();
   const navigate = useNavigate();
   const state = (location.state as ResultLocationState | null) ?? null;
+  const historyId = state?.historyId;
   const image = state?.image;
   const prediction = state?.prediction;
+  const [historyItem, setHistoryItem] = useState<StoredHistoryItem | null>(null);
+  const [isWrongOpen, setIsWrongOpen] = useState(false);
 
   useEffect(() => {
-    if (!image || !prediction) {
+    if (!image || !prediction || !historyId) {
       navigate("/upload");
+      return;
     }
-  }, [image, prediction, navigate]);
 
-  if (!image || !prediction) {
+    setHistoryItem(getHistoryItemById(historyId));
+  }, [historyId, image, prediction, navigate]);
+
+  if (!image || !prediction || !historyId) {
     return null;
   }
+
+  const ticket = historyItem?.ticket;
+  const feedback = historyItem?.feedback;
+
+  const turnaroundText = useMemo(() => {
+    if (!ticket?.resolvedAt) {
+      return "Not closed yet";
+    }
+    const ms = new Date(ticket.resolvedAt).getTime() - new Date(ticket.createdAt).getTime();
+    const hours = Math.max(0, Math.round((ms / (1000 * 60 * 60)) * 10) / 10);
+    return `${hours}h`;
+  }, [ticket?.createdAt, ticket?.resolvedAt]);
+
+  const updateTicketStatus = (status: TicketStatus) => {
+    if (!historyId) return;
+    const nowIso = new Date().toISOString();
+
+    const updated = updateHistoryItem(historyId, (item) => ({
+      ...item,
+      ticket: item.ticket
+        ? {
+            ...item.ticket,
+            status,
+            updatedAt: nowIso,
+            resolvedAt: status === "Resolved" ? nowIso : item.ticket.resolvedAt,
+          }
+        : item.ticket,
+    }));
+    setHistoryItem(updated);
+  };
+
+  const saveFeedback = (correctedLabel: 0 | 1) => {
+    if (!historyId) return;
+    const nowIso = new Date().toISOString();
+    const updated = updateHistoryItem(historyId, (item) => ({
+      ...item,
+      feedback: {
+        isWrong: true,
+        correctedLabel,
+        updatedAt: nowIso,
+      },
+    }));
+    setHistoryItem(updated);
+    setIsWrongOpen(false);
+  };
 
   const statusConfig = prediction.decision === 1
     ? {
@@ -185,6 +238,92 @@ export function Result() {
                   </div>
                 </div>
               </div>
+            </motion.div>
+
+            {ticket ? (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.9 }}
+                className="rounded-2xl bg-white p-6 shadow-xl"
+              >
+                <h3 className="mb-4 text-xl font-semibold text-foreground">Auto Ticket</h3>
+                <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <div className="text-muted-foreground">Case ID</div>
+                    <div className="font-semibold text-foreground">{ticket.caseId}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Status</div>
+                    <div className="font-semibold text-foreground">{ticket.status}</div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Created</div>
+                    <div className="font-semibold text-foreground">
+                      {new Date(ticket.createdAt).toLocaleString()}
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-muted-foreground">Turnaround</div>
+                    <div className="font-semibold text-foreground">{turnaroundText}</div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {(["Open", "In Progress", "Resolved"] as TicketStatus[]).map((status) => (
+                    <button
+                      key={status}
+                      onClick={() => updateTicketStatus(status)}
+                      className={`rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
+                        ticket.status === status
+                          ? "bg-primary text-white"
+                          : "bg-muted text-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {status}
+                    </button>
+                  ))}
+                </div>
+              </motion.div>
+            ) : null}
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1 }}
+              className="rounded-2xl bg-white p-6 shadow-xl"
+            >
+              <h3 className="mb-3 text-xl font-semibold text-foreground">Feedback Loop</h3>
+              {feedback?.isWrong ? (
+                <p className="text-sm text-muted-foreground">
+                  Correction saved as label {feedback.correctedLabel}. Thanks, this helps model
+                  improvement.
+                </p>
+              ) : (
+                <>
+                  <button
+                    onClick={() => setIsWrongOpen((prev) => !prev)}
+                    className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted"
+                  >
+                    Model was wrong?
+                  </button>
+                  {isWrongOpen ? (
+                    <div className="mt-3 flex gap-2">
+                      <button
+                        onClick={() => saveFeedback(0)}
+                        className="rounded-lg bg-primary px-3 py-2 text-sm text-white"
+                      >
+                        Correct Label: 0
+                      </button>
+                      <button
+                        onClick={() => saveFeedback(1)}
+                        className="rounded-lg bg-destructive px-3 py-2 text-sm text-white"
+                      >
+                        Correct Label: 1
+                      </button>
+                    </div>
+                  ) : null}
+                </>
+              )}
             </motion.div>
           </motion.div>
         </div>
