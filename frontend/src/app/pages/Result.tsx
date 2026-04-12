@@ -167,7 +167,7 @@ export function Result() {
               </div>
             </motion.div>
 
-            {/* Confidence Score */}
+            {/* Binary Output Detail */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -175,19 +175,19 @@ export function Result() {
               className="rounded-3xl bg-white p-8 shadow-xl"
             >
               <div className="mb-4 flex items-baseline justify-between">
-                <h3 className="text-xl font-semibold text-foreground">Confidence Score</h3>
-                <span className="text-2xl font-bold text-foreground">Not Provided</span>
+                <h3 className="text-xl font-semibold text-foreground">Binary Output</h3>
+                <span className="text-4xl font-bold text-foreground">{statusConfig.value}</span>
               </div>
-              <div className="h-4 overflow-hidden rounded-full bg-muted">
+              <div className="h-4 overflow-hidden rounded-full bg-muted/70">
                 <motion.div
                   initial={{ width: 0 }}
-                  animate={{ width: "100%" }}
+                  animate={{ width: statusConfig.value === 1 ? "100%" : "45%" }}
                   transition={{ delay: 0.5, duration: 1, ease: "easeOut" }}
                   className={`h-full ${statusConfig.bgClass}`}
                 />
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                The current backend returns binary decision output only (0 or 1).
+                Output interpretation: 1 means municipal action required, 0 means no action needed.
               </p>
             </motion.div>
 
