@@ -79,7 +79,7 @@ export function History() {
   }, [historyData]);
 
   return (
-    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-b from-muted/30 to-white px-6 py-16">
+    <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#e8f7f3] via-[#eef7ff] to-[#f6fbff] px-6 py-16">
       <div className="mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
