@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router";
 import { Upload as UploadIcon, Camera, FolderOpen } from "lucide-react";
 import { motion } from "motion/react";
+import { addHistoryItem } from "../lib/history";
 
 type PredictionResponse = {
   decision: number;
@@ -20,6 +21,7 @@ export function Upload() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -85,10 +87,20 @@ export function Upload() {
         throw new Error(payload?.detail || "Prediction failed.");
       }
 
+      const prediction = payload as PredictionResponse;
+      addHistoryItem({
+        id: crypto.randomUUID(),
+        thumbnail: preview,
+        result: prediction.decision === 1 ? 1 : 0,
+        timestamp: new Date().toISOString(),
+        label: prediction.label,
+        modelVersion: prediction.model_version,
+      });
+
       navigate("/result", {
         state: {
           image: preview,
-          prediction: payload as PredictionResponse,
+          prediction,
         },
       });
     } catch (error) {
@@ -122,6 +134,14 @@ export function Upload() {
               onChange={handleFileChange}
               className="hidden"
             />
+            <input
+              ref={cameraInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              onChange={handleFileChange}
+              className="hidden"
+            />
 
             <div className="flex flex-col items-center px-8 py-20">
               <div className="mb-8 flex size-28 items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 shadow-lg shadow-primary/30">
@@ -142,7 +162,7 @@ export function Upload() {
                   Browse Files
                 </button>
                 <button
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={() => cameraInputRef.current?.click()}
                   className="inline-flex items-center gap-2 rounded-xl border-2 border-primary bg-white px-8 py-4 text-primary transition-all hover:bg-primary/5"
                 >
                   <Camera className="size-5" />

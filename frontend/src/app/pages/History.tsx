@@ -1,75 +1,23 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Calendar } from "lucide-react";
 import { motion } from "motion/react";
-
-type HistoryItem = {
-  id: string;
-  thumbnail: string;
-  result: 0 | 1;
-  confidence: number;
-  timestamp: Date;
-};
+import { readHistory, type StoredHistoryItem } from "../lib/history";
 
 export function History() {
   const [filter, setFilter] = useState<"all" | "required" | "no-action">("all");
+  const [historyData, setHistoryData] = useState<StoredHistoryItem[]>([]);
 
-  const historyData: HistoryItem[] = [
-    {
-      id: "1",
-      thumbnail:
-        "https://images.unsplash.com/photo-1749586147694-0adb542a13f4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-      result: 1,
-      confidence: 94,
-      timestamp: new Date(2026, 3, 10, 14, 30),
-    },
-    {
-      id: "2",
-      thumbnail:
-        "https://images.unsplash.com/photo-1769328599122-e4147e037321?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-      result: 0,
-      confidence: 87,
-      timestamp: new Date(2026, 3, 10, 12, 15),
-    },
-    {
-      id: "3",
-      thumbnail:
-        "https://images.unsplash.com/photo-1769164746692-40223237b2fe?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-      result: 1,
-      confidence: 91,
-      timestamp: new Date(2026, 3, 9, 16, 45),
-    },
-    {
-      id: "4",
-      thumbnail:
-        "https://images.unsplash.com/photo-1691151118213-0d702b668f80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-      result: 0,
-      confidence: 88,
-      timestamp: new Date(2026, 3, 9, 10, 20),
-    },
-    {
-      id: "5",
-      thumbnail:
-        "https://images.unsplash.com/photo-1738856289730-e26e968af0ac?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-      result: 1,
-      confidence: 96,
-      timestamp: new Date(2026, 3, 8, 15, 10),
-    },
-    {
-      id: "6",
-      thumbnail:
-        "https://images.unsplash.com/photo-1769328599122-e4147e037321?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=400",
-      result: 0,
-      confidence: 82,
-      timestamp: new Date(2026, 3, 8, 9, 5),
-    },
-  ];
+  useEffect(() => {
+    setHistoryData(readHistory());
+  }, []);
 
-  const filteredHistory = historyData.filter((item) => {
-    if (filter === "required") return item.result === 1;
-    if (filter === "no-action") return item.result === 0;
-    return true;
-  });
+  const filteredHistory = useMemo(() => {
+    return historyData.filter((item) => {
+      if (filter === "required") return item.result === 1;
+      if (filter === "no-action") return item.result === 0;
+      return true;
+    });
+  }, [filter, historyData]);
 
   const stats = {
     total: historyData.length,
@@ -186,12 +134,12 @@ export function History() {
                       ) : (
                         <CheckCircle2 className="size-4" />
                       )}
-                      {item.result === 1 ? "DMC Action Required" : "No Action Needed"}
+                      {item.label || (item.result === 1 ? "DMC Action Required" : "No Action Needed")}
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="size-4" />
-                      {item.timestamp.toLocaleString("en-US", {
+                      {new Date(item.timestamp).toLocaleString("en-US", {
                         month: "long",
                         day: "numeric",
                         year: "numeric",
@@ -203,10 +151,8 @@ export function History() {
 
                   {/* Confidence */}
                   <div className="text-right">
-                    <div className="mb-2 text-3xl font-bold text-foreground">
-                      {item.confidence}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">Confidence</div>
+                    <div className="mb-2 text-2xl font-bold text-foreground">0 / 1</div>
+                    <div className="text-sm text-muted-foreground">Binary Output</div>
                   </div>
                 </div>
               </div>
@@ -220,7 +166,6 @@ export function History() {
             animate={{ opacity: 1 }}
             className="rounded-2xl bg-white py-20 text-center shadow-lg"
           >
-            <div className="mb-4 text-6xl">📭</div>
             <p className="text-xl text-muted-foreground">No results found for this filter</p>
           </motion.div>
         )}
@@ -228,4 +173,3 @@ export function History() {
     </div>
   );
 }
-
