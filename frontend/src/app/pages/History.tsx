@@ -239,7 +239,7 @@ export function History() {
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-1 items-center justify-between">
+                <div className="grid flex-1 items-center gap-4 lg:grid-cols-[minmax(0,1fr)_240px_120px]">
                   <div className="space-y-2">
                     <div
                       className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold ${
@@ -269,29 +269,36 @@ export function History() {
                     <div className="text-sm text-muted-foreground">
                       Ward: {item.geoTag?.ward ?? "Not captured"}
                     </div>
-                    {item.geoTag ? (
-                      <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-                        <div className="font-medium text-foreground">
-                          Coordinates: {item.geoTag.latitude.toFixed(6)},{" "}
-                          {item.geoTag.longitude.toFixed(6)}
-                        </div>
-                        <a
-                          href={`https://maps.google.com/?q=${item.geoTag.latitude},${item.geoTag.longitude}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="mt-1 inline-flex items-center gap-1 text-primary hover:underline"
-                        >
-                          <MapPin className="size-3.5" />
-                          Open in Maps
-                        </a>
-                      </div>
-                    ) : null}
                     {item.ticket ? (
                       <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
                         <Ticket className="size-3.5" />
                         {item.ticket.caseId} · {item.ticket.status}
                       </div>
                     ) : null}
+                  </div>
+
+                  <div className="min-h-28 rounded-xl border border-border bg-muted/30 p-4">
+                    <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      Coordinates
+                    </div>
+                    {item.geoTag ? (
+                      <>
+                        <div className="text-sm font-semibold text-foreground">
+                          {item.geoTag.latitude.toFixed(6)}, {item.geoTag.longitude.toFixed(6)}
+                        </div>
+                        <a
+                          href={`https://maps.google.com/?q=${item.geoTag.latitude},${item.geoTag.longitude}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-2 inline-flex items-center gap-1 text-sm text-primary hover:underline"
+                        >
+                          <MapPin className="size-4" />
+                          Open in Maps
+                        </a>
+                      </>
+                    ) : (
+                      <div className="text-sm text-muted-foreground">Location not captured</div>
+                    )}
                   </div>
 
                   {/* Confidence */}
