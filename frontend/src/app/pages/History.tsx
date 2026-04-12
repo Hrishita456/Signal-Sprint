@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Calendar, MapPin, Ticket } from "lucide-react";
 import { motion } from "motion/react";
-import { normalizeIITKPoint, readHistory, type StoredHistoryItem } from "../lib/history";
+import { readHistory, type StoredHistoryItem } from "../lib/history";
 
 export function History() {
   const [filter, setFilter] = useState<"all" | "required" | "no-action">("all");
@@ -49,16 +49,6 @@ export function History() {
           ).toFixed(1)
         : "N/A";
 
-    const hotspotCounter = new Map<string, number>();
-    historyData.forEach((item) => {
-      if (item.result === 1 && item.geoTag?.ward) {
-        hotspotCounter.set(item.geoTag.ward, (hotspotCounter.get(item.geoTag.ward) || 0) + 1);
-      }
-    });
-    const topHotspots = [...hotspotCounter.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 3);
-
     return {
       total,
       required,
@@ -67,23 +57,25 @@ export function History() {
       weeklyCount,
       actionRate,
       avgTurnaroundHours,
-      topHotspots,
     };
   }, [historyData]);
 
-  const mapPoints = useMemo(() => {
-    return historyData
-      .filter((item) => item.geoTag)
-      .map((item) => {
-        const point = normalizeIITKPoint(item.geoTag!.latitude, item.geoTag!.longitude);
-        return {
-          id: item.id,
-          x: point.x,
-          y: point.y,
-          result: item.result,
-          ward: item.geoTag?.ward ?? "Unknown",
-        };
-      });
+  const wardSummary = useMemo(() => {
+    const wardMap = new Map<string, { required: number; noAction: number; total: number }>();
+
+    historyData.forEach((item) => {
+      const ward = item.geoTag?.ward ?? "Ward not captured";
+      const current = wardMap.get(ward) ?? { required: 0, noAction: 0, total: 0 };
+      current.total += 1;
+      if (item.result === 1) {
+        current.required += 1;
+      } else {
+        current.noAction += 1;
+      }
+      wardMap.set(ward, current);
+    });
+
+    return [...wardMap.entries()].sort((a, b) => b[1].total - a[1].total);
   }, [historyData]);
 
   return (
@@ -177,42 +169,33 @@ export function History() {
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-semibold text-foreground">IIT Kanpur Ward Map</h2>
-            <div className="relative h-72 overflow-hidden rounded-xl border border-border bg-gradient-to-br from-emerald-50 via-white to-cyan-50">
-              <div className="absolute left-0 top-0 h-1/2 w-1/2 border-b border-r border-border/60 p-2 text-xs text-muted-foreground">
-                Academic Core
+            <h2 className="mb-4 text-xl font-semibold text-foreground">Ward Summary Table</h2>
+            <div className="overflow-hidden rounded-xl border border-border">
+              <div className="grid grid-cols-4 bg-muted/40 px-4 py-3 text-sm font-semibold text-foreground">
+                <div>Ward</div>
+                <div className="text-center">Action Required</div>
+                <div className="text-center">No Action</div>
+                <div className="text-center">Total Reports</div>
               </div>
-              <div className="absolute right-0 top-0 h-1/2 w-1/2 border-b border-border/60 p-2 text-right text-xs text-muted-foreground">
-                Faculty Zone
-              </div>
-              <div className="absolute bottom-0 left-0 h-1/2 w-1/2 border-r border-border/60 p-2 text-xs text-muted-foreground">
-                Hall Area
-              </div>
-              <div className="absolute bottom-0 right-0 h-1/2 w-1/2 p-2 text-right text-xs text-muted-foreground">
-                Main Gate Zone
-              </div>
-
-              {mapPoints.map((point) => (
-                <div
-                  key={point.id}
-                  className={`absolute size-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow ${
-                    point.result === 1 ? "bg-destructive" : "bg-primary"
-                  }`}
-                  style={{ left: `${point.x}%`, top: `${point.y}%` }}
-                  title={point.ward}
-                />
-              ))}
+              {wardSummary.length > 0 ? (
+                wardSummary.map(([ward, value]) => (
+                  <div
+                    key={ward}
+                    className="grid grid-cols-4 border-t border-border px-4 py-3 text-sm"
+                  >
+                    <div className="font-medium text-foreground">{ward}</div>
+                    <div className="text-center font-semibold text-destructive">{value.required}</div>
+                    <div className="text-center font-semibold text-primary">{value.noAction}</div>
+                    <div className="text-center font-semibold text-foreground">{value.total}</div>
+                  </div>
+                ))
+              ) : (
+                <div className="px-4 py-6 text-sm text-muted-foreground">No ward data yet.</div>
+              )}
             </div>
-            <div className="mt-3 flex gap-4 text-sm text-muted-foreground">
-              <span className="inline-flex items-center gap-2">
-                <span className="size-3 rounded-full bg-destructive" />
-                Action required
-              </span>
-              <span className="inline-flex items-center gap-2">
-                <span className="size-3 rounded-full bg-primary" />
-                No action
-              </span>
-            </div>
+            <p className="mt-3 text-sm text-muted-foreground">
+              Paste coordinates in maps to get to the location.
+            </p>
           </div>
         </motion.div>
 
@@ -306,6 +289,23 @@ export function History() {
                     <div className="text-sm text-muted-foreground">
                       Ward: {item.geoTag?.ward ?? "Not captured"}
                     </div>
+                    {item.geoTag ? (
+                      <div className="rounded-lg bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+                        <div className="font-medium text-foreground">
+                          Coordinates: {item.geoTag.latitude.toFixed(6)},{" "}
+                          {item.geoTag.longitude.toFixed(6)}
+                        </div>
+                        <a
+                          href={`https://maps.google.com/?q=${item.geoTag.latitude},${item.geoTag.longitude}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="mt-1 inline-flex items-center gap-1 text-primary hover:underline"
+                        >
+                          <MapPin className="size-3.5" />
+                          Open in Maps
+                        </a>
+                      </div>
+                    ) : null}
                     {item.ticket ? (
                       <div className="inline-flex items-center gap-2 rounded-full bg-muted px-3 py-1 text-xs font-semibold text-foreground">
                         <Ticket className="size-3.5" />
