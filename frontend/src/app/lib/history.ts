@@ -54,7 +54,20 @@ export function readHistory(): StoredHistoryItem[] {
 }
 
 function writeHistory(history: StoredHistoryItem[]): void {
-  localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history));
+  let candidate = [...history];
+
+  while (candidate.length > 0) {
+    try {
+      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(candidate));
+      return;
+    } catch {
+      // If quota is exceeded, drop oldest entries and retry.
+      candidate = candidate.slice(0, -1);
+    }
+  }
+
+  // Final fallback in case storage is very constrained.
+  localStorage.removeItem(HISTORY_STORAGE_KEY);
 }
 
 export function addHistoryItem(item: StoredHistoryItem): void {
@@ -140,4 +153,3 @@ export function normalizeIITKPoint(latitude: number, longitude: number): { x: nu
     y: Math.max(0, Math.min(100, y)),
   };
 }
-

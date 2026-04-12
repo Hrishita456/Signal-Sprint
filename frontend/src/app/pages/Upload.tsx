@@ -14,6 +14,30 @@ type PredictionResponse = {
 const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, "") ?? "http://127.0.0.1:8000";
 
+async function createThumbnail(dataUrl: string): Promise<string> {
+  return new Promise((resolve) => {
+    const image = new Image();
+    image.onload = () => {
+      const maxWidth = 420;
+      const scale = Math.min(1, maxWidth / image.width);
+      const width = Math.max(1, Math.round(image.width * scale));
+      const height = Math.max(1, Math.round(image.height * scale));
+      const canvas = document.createElement("canvas");
+      canvas.width = width;
+      canvas.height = height;
+      const context = canvas.getContext("2d");
+      if (!context) {
+        resolve(dataUrl);
+        return;
+      }
+      context.drawImage(image, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.65));
+    };
+    image.onerror = () => resolve(dataUrl);
+    image.src = dataUrl;
+  });
+}
+
 async function getCurrentGeoTag(): Promise<{ latitude: number; longitude: number; ward: string } | undefined> {
   if (!navigator.geolocation) {
     return undefined;
@@ -118,10 +142,11 @@ export function Upload() {
       const nowIso = new Date().toISOString();
       const shouldCreateTicket = prediction.decision === 1;
       const historyId = crypto.randomUUID();
+      const thumbnail = await createThumbnail(preview);
 
       addHistoryItem({
         id: historyId,
-        thumbnail: preview,
+        thumbnail,
         result: prediction.decision === 1 ? 1 : 0,
         timestamp: nowIso,
         label: prediction.label,
