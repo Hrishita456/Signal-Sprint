@@ -120,6 +120,13 @@ export function History() {
       .slice(0, 3);
   }, [historyData]);
 
+  const ticketStatusLabel = (status: string) => {
+    if (status === "Open") return t("ticket.open");
+    if (status === "In Progress") return t("ticket.inProgress");
+    if (status === "Resolved") return t("ticket.resolved");
+    return status;
+  };
+
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#e8f7f3] via-[#eef7ff] to-[#f6fbff] px-6 py-16">
       <div className="mx-auto max-w-7xl">
@@ -358,7 +365,7 @@ export function History() {
                     {item.ticket ? (
                       <div className="inline-flex items-center gap-2 rounded-full border border-pink-200 bg-pink-100 px-3 py-1 text-xs font-semibold text-pink-800">
                         <Ticket className="size-3.5" />
-                        {item.ticket.caseId} {t("history.ticketStatusSeparator")} {item.ticket.status}
+                        {item.ticket.caseId} {t("history.ticketStatusSeparator")} {ticketStatusLabel(item.ticket.status)}
                       </div>
                     ) : null}
                   </div>

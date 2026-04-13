@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useMemo, useState, type ReactNode } from "react";
 
 export type Language = "en" | "hi";
 
@@ -317,14 +317,17 @@ const translations: Record<Language, Record<string, string>> = {
 const I18nContext = createContext<I18nContextValue | null>(null);
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [language, setLanguage] = useState<Language>(() => {
+  const [language, setLanguageState] = useState<Language>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored === "hi" ? "hi" : "en";
   });
+  document.documentElement.lang = language === "hi" ? "hi" : "en";
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, language);
-  }, [language]);
+  const setLanguage = (nextLanguage: Language) => {
+    setLanguageState(nextLanguage);
+    localStorage.setItem(STORAGE_KEY, nextLanguage);
+    document.documentElement.lang = nextLanguage === "hi" ? "hi" : "en";
+  };
 
   const value = useMemo<I18nContextValue>(
     () => ({
