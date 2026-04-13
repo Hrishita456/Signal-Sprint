@@ -1,13 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Calendar, MapPin, Ticket } from "lucide-react";
 import { motion } from "motion/react";
-import { readHistory, type StoredHistoryItem } from "../lib/history";
+import { clearHistory, readHistory, type StoredHistoryItem } from "../lib/history";
 import { useI18n } from "../lib/i18n";
 
 export function History() {
   const [filter, setFilter] = useState<"all" | "required" | "no-action">("all");
   const [historyData, setHistoryData] = useState<StoredHistoryItem[]>([]);
-  const { t } = useI18n();
+  const { t, isHindi } = useI18n();
 
   useEffect(() => {
     setHistoryData(readHistory());
@@ -61,6 +61,14 @@ export function History() {
       avgTurnaroundHours,
     };
   }, [historyData]);
+
+  const handleClearHistory = () => {
+    if (!window.confirm(t("history.clearConfirm"))) {
+      return;
+    }
+    clearHistory();
+    setHistoryData([]);
+  };
 
   const wardSummary = useMemo(() => {
     const wardMap = new Map<string, { required: number; noAction: number; total: number }>();
@@ -124,6 +132,14 @@ export function History() {
           <p className="text-lg text-muted-foreground">
             {t("history.subtitle")}
           </p>
+          <div className="mt-4">
+            <button
+              onClick={handleClearHistory}
+              className="rounded-xl border border-destructive bg-white px-4 py-2 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/5"
+            >
+              {t("history.clearHistory")}
+            </button>
+          </div>
         </motion.div>
 
         {/* Stats Cards */}
@@ -134,19 +150,19 @@ export function History() {
           className="mb-10 grid gap-6 md:grid-cols-4"
         >
           <div className="rounded-2xl bg-white p-6 shadow-lg">
-            <div className="text-sm text-muted-foreground">Total Analyses</div>
+            <div className="text-sm text-muted-foreground">{t("history.totalAnalyses")}</div>
             <div className="mt-2 text-4xl font-bold text-foreground">{analytics.total}</div>
           </div>
           <div className="rounded-2xl bg-destructive/10 p-6 shadow-lg">
-            <div className="text-sm text-destructive">Action Required</div>
+            <div className="text-sm text-destructive">{t("history.actionRequired")}</div>
             <div className="mt-2 text-4xl font-bold text-destructive">{analytics.required}</div>
           </div>
           <div className="rounded-2xl bg-primary/10 p-6 shadow-lg">
-            <div className="text-sm text-primary">No Action Needed</div>
+            <div className="text-sm text-primary">{t("history.noActionNeeded")}</div>
             <div className="mt-2 text-4xl font-bold text-primary">{analytics.noAction}</div>
           </div>
           <div className="rounded-2xl bg-white p-6 shadow-lg">
-            <div className="text-sm text-muted-foreground">Action Rate</div>
+            <div className="text-sm text-muted-foreground">{t("history.actionRate")}</div>
             <div className="mt-2 text-4xl font-bold text-foreground">{analytics.actionRate}%</div>
           </div>
         </motion.div>
@@ -158,18 +174,18 @@ export function History() {
           className="mb-10 grid gap-6 lg:grid-cols-2"
         >
           <div className="rounded-2xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-semibold text-foreground">History Analytics</h2>
+            <h2 className="mb-4 text-xl font-semibold text-foreground">{t("history.analytics")}</h2>
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="rounded-xl bg-muted/40 p-4">
-                <div className="text-sm text-muted-foreground">Today</div>
+                <div className="text-sm text-muted-foreground">{t("history.today")}</div>
                 <div className="text-3xl font-bold text-foreground">{analytics.todayCount}</div>
               </div>
               <div className="rounded-xl bg-muted/40 p-4">
-                <div className="text-sm text-muted-foreground">Last 7 Days</div>
+                <div className="text-sm text-muted-foreground">{t("history.last7Days")}</div>
                 <div className="text-3xl font-bold text-foreground">{analytics.weeklyCount}</div>
               </div>
               <div className="rounded-xl bg-muted/40 p-4 sm:col-span-2">
-                <div className="text-sm text-muted-foreground">Avg Cleanup Turnaround</div>
+                <div className="text-sm text-muted-foreground">{t("history.turnaround")}</div>
                 <div className="text-3xl font-bold text-foreground">
                   {analytics.avgTurnaroundHours === "N/A"
                     ? "N/A"
@@ -178,7 +194,7 @@ export function History() {
               </div>
             </div>
             <div className="mt-5 rounded-lg border border-border bg-muted/30 px-3 py-3 text-sm text-muted-foreground">
-              Ward counts are shown in the table for action-required, no-action, and total reports.
+              {t("history.wardCountsHint")}
             </div>
           </div>
 
@@ -186,10 +202,10 @@ export function History() {
             <h2 className="mb-4 text-xl font-semibold text-foreground">{t("history.wardTable")}</h2>
             <div className="overflow-hidden rounded-xl border border-border">
               <div className="grid grid-cols-4 bg-muted/40 px-4 py-3 text-sm font-semibold text-foreground">
-                <div>Ward</div>
-                <div className="text-center">Action Required</div>
-                <div className="text-center">No Action</div>
-                <div className="text-center">Total Reports</div>
+                <div>{t("history.table.ward")}</div>
+                <div className="text-center">{t("history.table.action")}</div>
+                <div className="text-center">{t("history.table.noAction")}</div>
+                <div className="text-center">{t("history.table.total")}</div>
               </div>
               {wardSummary.length > 0 ? (
                 wardSummary.map(([ward, value]) => (
@@ -204,7 +220,7 @@ export function History() {
                   </div>
                 ))
               ) : (
-                <div className="px-4 py-6 text-sm text-muted-foreground">No ward data yet.</div>
+                <div className="px-4 py-6 text-sm text-muted-foreground">{t("history.noWardData")}</div>
               )}
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
@@ -232,11 +248,11 @@ export function History() {
                     <span className="font-semibold text-destructive">{value.score}</span>
                   </div>
                   <div className="mt-1 text-sm text-muted-foreground">
-                    Recent action-required:{" "}
+                    {t("history.recentActionRequired")}:{" "}
                     <span className="font-semibold text-foreground">{value.recentRequired}</span>
                   </div>
                   <div className="text-sm text-muted-foreground">
-                    Total action-required:{" "}
+                    {t("history.totalActionRequired")}:{" "}
                     <span className="font-semibold text-foreground">{value.totalRequired}</span>
                   </div>
                 </div>
@@ -323,12 +339,12 @@ export function History() {
                       ) : (
                         <CheckCircle2 className="size-4" />
                       )}
-                      {item.label || (item.result === 1 ? "DMC Action Required" : "No Action Needed")}
+                      {item.result === 1 ? t("history.badge.actionRequired") : t("history.badge.noAction")}
                     </div>
 
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Calendar className="size-4" />
-                      {new Date(item.timestamp).toLocaleString("en-US", {
+                      {new Date(item.timestamp).toLocaleString(isHindi ? "hi-IN" : "en-US", {
                         month: "long",
                         day: "numeric",
                         year: "numeric",
@@ -337,19 +353,19 @@ export function History() {
                       })}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      Ward: {item.geoTag?.ward ?? "Not captured"}
+                      {t("history.table.ward")}: {item.geoTag?.ward ?? t("history.notCaptured")}
                     </div>
                     {item.ticket ? (
                       <div className="inline-flex items-center gap-2 rounded-full border border-pink-200 bg-pink-100 px-3 py-1 text-xs font-semibold text-pink-800">
                         <Ticket className="size-3.5" />
-                        {item.ticket.caseId} · {item.ticket.status}
+                        {item.ticket.caseId} {t("history.ticketStatusSeparator")} {item.ticket.status}
                       </div>
                     ) : null}
                   </div>
 
                   <div className="min-h-28 rounded-xl border-2 border-amber-300 bg-amber-50 p-4">
                     <div className="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                      Coordinates
+                      {t("history.coordinates")}
                     </div>
                     {item.geoTag ? (
                       <>
@@ -363,11 +379,11 @@ export function History() {
                           className="mt-2 inline-flex items-center gap-1 rounded-xl bg-primary px-4 py-2 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary/90"
                         >
                           <MapPin className="size-4" />
-                          Open in Maps
+                          {t("history.openInMaps")}
                         </a>
                       </>
                     ) : (
-                      <div className="text-sm text-muted-foreground">Location not captured</div>
+                      <div className="text-sm text-muted-foreground">{t("history.locationNotCaptured")}</div>
                     )}
                   </div>
                 </div>
@@ -382,7 +398,7 @@ export function History() {
             animate={{ opacity: 1 }}
             className="rounded-2xl bg-white py-20 text-center shadow-lg"
           >
-            <p className="text-xl text-muted-foreground">No results found for this filter</p>
+            <p className="text-xl text-muted-foreground">{t("history.noResults")}</p>
           </motion.div>
         )}
       </div>

@@ -7,7 +7,7 @@ import { useI18n } from "../lib/i18n";
 
 export function Home() {
   const [historyData, setHistoryData] = useState<StoredHistoryItem[]>([]);
-  const { t } = useI18n();
+  const { t, isHindi } = useI18n();
 
   useEffect(() => {
     setHistoryData(readHistory());
@@ -74,8 +74,7 @@ export function Home() {
           className="rounded-2xl border border-primary/20 bg-primary/5 px-8 py-6 text-center"
         >
           <p className="text-lg font-medium text-foreground">
-            Sustainability Impact: Faster waste-response routing helps keep IIT Kanpur cleaner,
-            reduce unmanaged spill zones, and support safer campus mobility.
+            {t("home.sustainability")}
           </p>
         </motion.div>
 
@@ -130,26 +129,26 @@ export function Home() {
                 />
               ) : (
                 <div className="flex min-h-72 items-center justify-center px-4 text-center text-muted-foreground">
-                  Analyze a dustbin image to see the latest action-required case here.
+                  {t("home.latestAnalyzeHint")}
                 </div>
               )}
             </div>
             <div className="rounded-2xl bg-destructive p-8 text-white">
-              <div className="mb-2 text-lg text-white/85">Detection Result</div>
+              <div className="mb-2 text-lg text-white/85">{t("home.latestActionTitle")}</div>
               <h3 className="mb-4 text-4xl font-bold">
-                {latestAction?.result === 1 ? "DMC Action Required" : "No Action Needed"}
+                {latestAction?.result === 1 ? t("home.latestActionRequired") : t("home.latestNoAction")}
               </h3>
               <div className="mb-4 text-xl">
-                Binary Output: <span className="text-5xl font-bold">{latestAction?.result ?? 0}</span>
+                {t("home.latestBinary")} <span className="text-5xl font-bold">{latestAction?.result ?? 0}</span>
               </div>
               <p className="text-white/90">
                 {latestAction
-                  ? "This card is powered from your real latest history entry."
-                  : "No detections yet. Upload your first image to start live monitoring."}
+                  ? t("home.latestPoweredBy")
+                  : t("home.latestNoData")}
               </p>
               {latestAction?.geoTag ? (
                 <div className="mt-4 rounded-xl bg-white/20 px-4 py-3 text-sm">
-                  Ward: {latestAction.geoTag.ward} · {latestAction.geoTag.latitude.toFixed(6)},{" "}
+                  {t("home.ward")}: {latestAction.geoTag.ward} · {latestAction.geoTag.latitude.toFixed(6)},{" "}
                   {latestAction.geoTag.longitude.toFixed(6)}
                 </div>
               ) : null}
@@ -200,12 +199,12 @@ export function Home() {
                         item.result === 1 ? "bg-destructive" : "bg-primary"
                       }`}
                     >
-                      {item.result === 1 ? "Action" : "Clear"}
+                      {item.result === 1 ? t("home.badge.action") : t("home.badge.clear")}
                     </div>
                   </div>
                   <div className="space-y-1 px-4 py-3 text-sm text-muted-foreground">
-                    <div>{new Date(item.timestamp).toLocaleString()}</div>
-                    <div className="font-medium text-foreground">{item.geoTag?.ward ?? "Ward not captured"}</div>
+                    <div>{new Date(item.timestamp).toLocaleString(isHindi ? "hi-IN" : "en-US")}</div>
+                    <div className="font-medium text-foreground">{item.geoTag?.ward ?? t("home.wardNotCaptured")}</div>
                   </div>
                 </div>
               ))}

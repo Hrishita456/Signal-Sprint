@@ -27,7 +27,7 @@ export function Result() {
   const prediction = state?.prediction;
   const [historyItem, setHistoryItem] = useState<StoredHistoryItem | null>(null);
   const [isWrongOpen, setIsWrongOpen] = useState(false);
-  const { t } = useI18n();
+  const { t, isHindi } = useI18n();
 
   useEffect(() => {
     if (!image || !prediction || !historyId) {
@@ -47,12 +47,18 @@ export function Result() {
 
   const turnaroundText = useMemo(() => {
     if (!ticket?.resolvedAt) {
-      return "Not closed yet";
+      return t("result.turnaroundOpen");
     }
     const ms = new Date(ticket.resolvedAt).getTime() - new Date(ticket.createdAt).getTime();
     const hours = Math.max(0, Math.round((ms / (1000 * 60 * 60)) * 10) / 10);
     return `${hours}h`;
-  }, [ticket?.createdAt, ticket?.resolvedAt]);
+  }, [ticket?.createdAt, ticket?.resolvedAt, t]);
+
+  const ticketStatusLabel = (status: TicketStatus) => {
+    if (status === "Open") return t("ticket.open");
+    if (status === "In Progress") return t("ticket.inProgress");
+    return t("ticket.resolved");
+  };
 
   const updateTicketStatus = (status: TicketStatus) => {
     if (!historyId) return;
@@ -89,24 +95,24 @@ export function Result() {
 
   const statusConfig = prediction.decision === 1
     ? {
-        label: prediction.label || "DMC Action Required",
+        label: t("status.actionRequired"),
         value: 1,
         icon: AlertCircle,
         bgClass: "bg-destructive",
         lightBgClass: "bg-destructive/10",
         textClass: "text-destructive",
         borderClass: "border-destructive",
-        reasons: [prediction.summary],
+        reasons: [t("result.reason.action")],
       }
     : {
-        label: prediction.label || "No Action Needed",
+        label: t("status.noAction"),
         value: 0,
         icon: CheckCircle2,
         bgClass: "bg-primary",
         lightBgClass: "bg-primary/10",
         textClass: "text-primary",
         borderClass: "border-primary",
-        reasons: [prediction.summary],
+        reasons: [t("result.reason.noAction")],
       };
 
   return (
@@ -120,7 +126,7 @@ export function Result() {
             className="space-y-6"
           >
             <div className="overflow-hidden rounded-3xl bg-white p-6 shadow-xl">
-              <h2 className="mb-4 text-xl font-semibold text-foreground">Uploaded Image</h2>
+              <h2 className="mb-4 text-xl font-semibold text-foreground">{t("result.uploadedImage")}</h2>
               <div className="overflow-hidden rounded-xl bg-muted">
                 <img
                   src={image}
@@ -135,7 +141,7 @@ export function Result() {
               className="flex items-center justify-center gap-2 rounded-2xl border-2 border-primary bg-white px-6 py-4 text-primary shadow-lg transition-all hover:bg-primary/5 hover:shadow-xl"
             >
               <Upload className="size-5" />
-              Upload Another Image
+              {t("result.uploadAnother")}
             </Link>
           </motion.div>
 
@@ -158,13 +164,13 @@ export function Result() {
                   <statusConfig.icon className="size-8 text-white" />
                 </div>
                 <div>
-                  <div className="mb-1 text-sm text-white/80">Final Decision</div>
+                  <div className="mb-1 text-sm text-white/80">{t("result.finalDecision")}</div>
                   <div className="text-3xl font-bold text-white">{statusConfig.label}</div>
                 </div>
               </div>
 
               <div className="flex items-baseline gap-3">
-                <div className="text-sm text-white/80">Binary Output:</div>
+                <div className="text-sm text-white/80">{t("result.binaryInline")}</div>
                 <div className="text-5xl font-bold text-white">{statusConfig.value}</div>
               </div>
             </motion.div>
@@ -189,7 +195,7 @@ export function Result() {
                 />
               </div>
               <p className="mt-3 text-sm text-muted-foreground">
-                Output interpretation: 1 means municipal action required, 0 means no action needed.
+                {t("result.outputInterpretation")}
               </p>
             </motion.div>
 
@@ -201,21 +207,21 @@ export function Result() {
                 transition={{ delay: 0.48 }}
                 className="rounded-3xl border-2 border-amber-300 bg-amber-50 p-8 shadow-xl"
               >
-                <h3 className="mb-4 text-xl font-semibold text-foreground">Location Coordinates</h3>
+                <h3 className="mb-4 text-xl font-semibold text-foreground">{t("result.locationCoordinates")}</h3>
                 <div className="space-y-2 text-sm">
                   <div className="text-foreground">
-                    <span className="font-semibold">Coordinates:</span>{" "}
+                    <span className="font-semibold">{t("result.coordinates")}</span>{" "}
                     {historyItem.geoTag.latitude.toFixed(6)},{" "}
                     {historyItem.geoTag.longitude.toFixed(6)}
                   </div>
-                  <div className="text-muted-foreground">Ward: {historyItem.geoTag.ward}</div>
+                  <div className="text-muted-foreground">{t("history.table.ward")}: {historyItem.geoTag.ward}</div>
                   <a
                     href={`https://maps.google.com/?q=${historyItem.geoTag.latitude},${historyItem.geoTag.longitude}`}
                     target="_blank"
                     rel="noreferrer"
                     className="mt-2 inline-flex items-center rounded-xl bg-primary px-5 py-3 text-base font-semibold text-white shadow-md transition-colors hover:bg-primary/90"
                   >
-                    Open in Maps
+                    {t("result.openInMaps")}
                   </a>
                 </div>
               </motion.div>
@@ -227,7 +233,7 @@ export function Result() {
               transition={{ delay: 0.5 }}
               className="rounded-3xl bg-white p-8 shadow-xl"
             >
-              <h3 className="mb-4 text-xl font-semibold text-foreground">Explanation</h3>
+              <h3 className="mb-4 text-xl font-semibold text-foreground">{t("result.explanation")}</h3>
               <ul className="space-y-3">
                 {statusConfig.reasons.map((reason, index) => (
                   <motion.li
@@ -255,13 +261,13 @@ export function Result() {
             >
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div>
-                  <div className="text-muted-foreground">Analyzed At</div>
+                  <div className="text-muted-foreground">{t("result.analyzedAt")}</div>
                   <div className="font-medium text-foreground">
-                    {new Date().toLocaleString()}
+                    {new Date().toLocaleString(isHindi ? "hi-IN" : "en-US")}
                   </div>
                 </div>
                 <div>
-                  <div className="text-muted-foreground">Model Version</div>
+                  <div className="text-muted-foreground">{t("result.modelVersion")}</div>
                   <div className="font-medium text-foreground">
                     {prediction.model_version || "Signal Sprint Model"}
                   </div>
@@ -276,24 +282,24 @@ export function Result() {
                 transition={{ delay: 0.9 }}
                 className="rounded-2xl bg-white p-6 shadow-xl"
               >
-                <h3 className="mb-4 text-xl font-semibold text-foreground">Auto Ticket</h3>
+                <h3 className="mb-4 text-xl font-semibold text-foreground">{t("result.autoTicket")}</h3>
                 <div className="mb-4 grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <div className="text-muted-foreground">Case ID</div>
+                    <div className="text-muted-foreground">{t("result.caseId")}</div>
                     <div className="font-semibold text-foreground">{ticket.caseId}</div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Status</div>
-                    <div className="font-semibold text-foreground">{ticket.status}</div>
+                    <div className="text-muted-foreground">{t("result.status")}</div>
+                    <div className="font-semibold text-foreground">{ticketStatusLabel(ticket.status)}</div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Created</div>
+                    <div className="text-muted-foreground">{t("result.created")}</div>
                     <div className="font-semibold text-foreground">
-                      {new Date(ticket.createdAt).toLocaleString()}
+                      {new Date(ticket.createdAt).toLocaleString(isHindi ? "hi-IN" : "en-US")}
                     </div>
                   </div>
                   <div>
-                    <div className="text-muted-foreground">Turnaround</div>
+                    <div className="text-muted-foreground">{t("result.turnaround")}</div>
                     <div className="font-semibold text-foreground">{turnaroundText}</div>
                   </div>
                 </div>
@@ -308,7 +314,7 @@ export function Result() {
                           : "bg-muted text-foreground hover:bg-muted/80"
                       }`}
                     >
-                      {status}
+                      {ticketStatusLabel(status)}
                     </button>
                   ))}
                 </div>
@@ -321,11 +327,10 @@ export function Result() {
               transition={{ delay: 1 }}
               className="rounded-2xl bg-white p-6 shadow-xl"
             >
-              <h3 className="mb-3 text-xl font-semibold text-foreground">Feedback Loop</h3>
+              <h3 className="mb-3 text-xl font-semibold text-foreground">{t("result.feedbackLoop")}</h3>
               {feedback?.isWrong ? (
                 <p className="text-sm text-muted-foreground">
-                  Correction saved as label {feedback.correctedLabel}. Thanks, this helps model
-                  improvement.
+                  {t("result.correctSaved").replace("{label}", String(feedback.correctedLabel))}
                 </p>
               ) : (
                 <>
@@ -333,7 +338,7 @@ export function Result() {
                     onClick={() => setIsWrongOpen((prev) => !prev)}
                     className="rounded-lg border border-border px-4 py-2 text-sm text-foreground hover:bg-muted"
                   >
-                    Model was wrong?
+                    {t("result.modelWrong")}
                   </button>
                   {isWrongOpen ? (
                     <div className="mt-3 flex gap-2">
@@ -341,13 +346,13 @@ export function Result() {
                         onClick={() => saveFeedback(0)}
                         className="rounded-lg bg-primary px-3 py-2 text-sm text-white"
                       >
-                        Correct Label: 0
+                        {t("result.correct0")}
                       </button>
                       <button
                         onClick={() => saveFeedback(1)}
                         className="rounded-lg bg-destructive px-3 py-2 text-sm text-white"
                       >
-                        Correct Label: 1
+                        {t("result.correct1")}
                       </button>
                     </div>
                   ) : null}

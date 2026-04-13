@@ -6,86 +6,81 @@ export function Guidelines() {
   const { t } = useI18n();
   const rules = [
     {
-      title: "Authorized Dustbins",
+      title: t("guidelines.rule.authorized.title"),
       color: "blue",
       bgClass: "bg-blue-500",
       lightBgClass: "bg-blue-50",
       textClass: "text-blue-700",
       icon: Trash2,
-      description:
-        "Only DMC-authorized dustbins are considered valid. Unauthorized containers or makeshift bins are not acceptable.",
+      description: t("guidelines.rule.authorized.desc"),
     },
     {
-      title: "Garbage Without Dustbin",
+      title: t("guidelines.rule.noBin.title"),
       color: "orange",
       bgClass: "bg-orange-500",
       lightBgClass: "bg-orange-50",
       textClass: "text-orange-700",
       icon: AlertTriangle,
-      description:
-        "Garbage found outside or near a dustbin without an authorized bin present requires DMC action. This includes dumping areas.",
+      description: t("guidelines.rule.noBin.desc"),
     },
     {
-      title: "Natural Leaves Excluded",
+      title: t("guidelines.rule.leaves.title"),
       color: "green",
       bgClass: "bg-primary",
       lightBgClass: "bg-primary/10",
       textClass: "text-primary",
       icon: Leaf,
-      description:
-        "Natural fallen leaves are excluded from detection. Only man-made waste and garbage trigger action requirements.",
+      description: t("guidelines.rule.leaves.desc"),
     },
     {
-      title: "Full Dustbin ≠ Action",
+      title: t("guidelines.rule.fullBin.title"),
       color: "teal",
       bgClass: "bg-teal-500",
       lightBgClass: "bg-teal-50",
       textClass: "text-teal-700",
       icon: CheckCircle,
-      description:
-        "A full dustbin alone does not trigger DMC action. Action is only required when garbage spills outside the bin.",
+      description: t("guidelines.rule.fullBin.desc"),
     },
     {
-      title: "Action Triggers",
+      title: t("guidelines.rule.triggers.title"),
       color: "red",
       bgClass: "bg-destructive",
       lightBgClass: "bg-destructive/10",
       textClass: "text-destructive",
       icon: XCircle,
-      description:
-        "DMC action is required when: (1) Garbage spills outside authorized dustbin, or (2) Garbage found without any authorized dustbin.",
+      description: t("guidelines.rule.triggers.desc"),
     },
   ];
 
   const decisionMatrix = [
     {
-      condition: "Authorized dustbin present + No spill",
+      condition: t("guidelines.cond.1"),
       decision: 0,
-      label: "No Action",
+      label: t("status.noAction"),
       color: "primary",
     },
     {
-      condition: "Authorized dustbin present + Garbage overflow/spill",
+      condition: t("guidelines.cond.2"),
       decision: 1,
-      label: "Action Required",
+      label: t("status.actionRequired"),
       color: "destructive",
     },
     {
-      condition: "No authorized dustbin + Garbage present",
+      condition: t("guidelines.cond.3"),
       decision: 1,
-      label: "Action Required",
+      label: t("status.actionRequired"),
       color: "destructive",
     },
     {
-      condition: "Only natural leaves (no man-made waste)",
+      condition: t("guidelines.cond.4"),
       decision: 0,
-      label: "No Action",
+      label: t("status.noAction"),
       color: "primary",
     },
     {
-      condition: "Full dustbin (waste contained inside)",
+      condition: t("guidelines.cond.5"),
       decision: 0,
-      label: "No Action",
+      label: t("status.noAction"),
       color: "primary",
     },
   ];
@@ -100,7 +95,7 @@ export function Guidelines() {
         >
           <h1 className="mb-2 text-4xl font-bold text-foreground">{t("guidelines.title")}</h1>
           <p className="text-lg text-muted-foreground">
-            Understanding the AI detection criteria and decision-making process
+            {t("guidelines.subtitle")}
           </p>
         </motion.div>
 
@@ -111,7 +106,7 @@ export function Guidelines() {
           transition={{ delay: 0.1 }}
           className="mb-16"
         >
-          <h2 className="mb-6 text-2xl font-semibold text-foreground">Key Rules</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-foreground">{t("guidelines.keyRules")}</h2>
           <div className="space-y-4">
             {rules.map((rule, index) => (
               <motion.div
@@ -145,17 +140,17 @@ export function Guidelines() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
         >
-          <h2 className="mb-6 text-2xl font-semibold text-foreground">Decision Matrix</h2>
+          <h2 className="mb-6 text-2xl font-semibold text-foreground">{t("guidelines.matrix.title")}</h2>
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
             <div className="grid gap-px bg-border">
               {/* Header */}
               <div className="grid grid-cols-3 gap-px bg-border">
-                <div className="bg-muted p-4 font-semibold text-foreground">Condition</div>
+                <div className="bg-muted p-4 font-semibold text-foreground">{t("guidelines.matrix.condition")}</div>
                 <div className="bg-muted p-4 text-center font-semibold text-foreground">
-                  Decision
+                  {t("guidelines.matrix.decision")}
                 </div>
                 <div className="bg-muted p-4 text-center font-semibold text-foreground">
-                  Status
+                  {t("guidelines.matrix.status")}
                 </div>
               </div>
 
@@ -202,12 +197,9 @@ export function Guidelines() {
           transition={{ delay: 1.3 }}
           className="mt-12 rounded-2xl bg-primary/5 p-8"
         >
-          <h3 className="mb-3 text-xl font-semibold text-foreground">Summary</h3>
+          <h3 className="mb-3 text-xl font-semibold text-foreground">{t("guidelines.summary.title")}</h3>
           <p className="text-muted-foreground">
-            The DMC Smart Monitor uses binary classification (0 or 1) to determine if action is
-            needed. Decision 0 means no DMC intervention required, while Decision 1 triggers cleanup
-            operations. The system prioritizes detection of overflow and unauthorized dumping while
-            excluding natural debris.
+            {t("guidelines.summary.desc")}
           </p>
         </motion.div>
       </div>

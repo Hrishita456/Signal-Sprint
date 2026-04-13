@@ -76,6 +76,10 @@ export function addHistoryItem(item: StoredHistoryItem): void {
   writeHistory(next);
 }
 
+export function clearHistory(): void {
+  localStorage.removeItem(HISTORY_STORAGE_KEY);
+}
+
 export function updateHistoryItem(
   id: string,
   update: (item: StoredHistoryItem) => StoredHistoryItem,
