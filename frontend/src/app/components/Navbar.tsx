@@ -50,7 +50,7 @@ export function Navbar() {
             ))}
             <button
               onClick={() => setLanguage(language === "en" ? "hi" : "en")}
-              className="rounded-lg border border-primary/30 bg-white px-4 py-2.5 font-semibold text-primary transition-colors hover:bg-primary/5"
+              className="rounded-xl border border-[#1e40af]/35 bg-gradient-to-br from-[#dbeafe] via-[#bfdbfe] to-[#93c5fd] px-4 py-2.5 font-semibold text-[#0f2f77] shadow-md shadow-[#1e3a8a]/15 transition-all hover:brightness-95 hover:shadow-lg hover:shadow-[#1e3a8a]/25"
               aria-label="Toggle language"
             >
               {t("nav.lang")}
