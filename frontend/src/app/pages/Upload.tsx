@@ -3,6 +3,7 @@ import { useNavigate } from "react-router";
 import { Upload as UploadIcon, Camera, FolderOpen } from "lucide-react";
 import { motion } from "motion/react";
 import { addHistoryItem, classifyWard, createCaseId } from "../lib/history";
+import { useI18n } from "../lib/i18n";
 
 type PredictionResponse = {
   decision: number;
@@ -73,6 +74,7 @@ export function Upload() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -214,9 +216,9 @@ export function Upload() {
                 <UploadIcon className="size-14 text-white" />
               </div>
 
-              <h1 className="mb-3 text-3xl font-bold text-foreground">Upload Dustbin Image</h1>
+              <h1 className="mb-3 text-3xl font-bold text-foreground">{t("upload.title")}</h1>
               <p className="mb-10 text-lg text-muted-foreground">
-                Drag and drop your image here, or use one of the options below
+                {t("upload.description")}
               </p>
 
               <div className="flex gap-4">
@@ -225,14 +227,14 @@ export function Upload() {
                   className="inline-flex items-center gap-2 rounded-xl bg-primary px-8 py-4 text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-xl"
                 >
                   <FolderOpen className="size-5" />
-                  Browse Files
+                  {t("upload.browseFiles")}
                 </button>
                 <button
                   onClick={() => cameraInputRef.current?.click()}
                   className="inline-flex items-center gap-2 rounded-xl border-2 border-primary bg-white px-8 py-4 text-primary transition-all hover:bg-primary/5"
                 >
                   <Camera className="size-5" />
-                  Use Camera
+                  {t("upload.useCamera")}
                 </button>
               </div>
             </div>
@@ -244,7 +246,7 @@ export function Upload() {
             className="space-y-6"
           >
             <div className="overflow-hidden rounded-3xl bg-white p-8 shadow-xl">
-              <h2 className="mb-6 text-2xl font-bold text-foreground">Image Preview</h2>
+              <h2 className="mb-6 text-2xl font-bold text-foreground">{t("upload.imagePreview")}</h2>
               <div className="mb-6 overflow-hidden rounded-xl bg-muted">
                 <img
                   src={preview}
@@ -265,7 +267,7 @@ export function Upload() {
                   }}
                   className="rounded-xl border-2 border-border px-8 py-3 text-foreground transition-colors hover:bg-muted"
                 >
-                  Remove Image
+                  {t("upload.removeImage")}
                 </button>
                 <button
                   onClick={handleAnalyze}
@@ -279,12 +281,12 @@ export function Upload() {
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="size-5 rounded-full border-2 border-white border-t-transparent"
                       />
-                      Analyzing...
+                      {t("upload.analyzing")}
                     </>
                   ) : (
                     <>
                       <UploadIcon className="size-5" />
-                      Analyze Image
+                      {t("upload.analyzeImage")}
                     </>
                   )}
                 </button>

@@ -1,14 +1,16 @@
 import { Link, useLocation } from "react-router";
 import { Trash2 } from "lucide-react";
+import { useI18n } from "../lib/i18n";
 
 export function Navbar() {
   const location = useLocation();
+  const { language, setLanguage, t } = useI18n();
 
   const navItems = [
-    { path: "/", label: "Home" },
-    { path: "/upload", label: "Upload" },
-    { path: "/history", label: "History" },
-    { path: "/guidelines", label: "Guidelines" },
+    { path: "/", label: t("nav.home") },
+    { path: "/upload", label: t("nav.upload") },
+    { path: "/history", label: t("nav.history") },
+    { path: "/guidelines", label: t("nav.guidelines") },
   ];
 
   const isActive = (path: string) => {
@@ -26,13 +28,13 @@ export function Navbar() {
             </div>
             <div className="flex flex-col">
               <span className="text-xl font-semibold leading-tight text-foreground">
-                DMC Smart Monitor
+                {t("brand.name")}
               </span>
-              <span className="text-xs text-muted-foreground">Dustbin Management System</span>
+              <span className="text-xs text-muted-foreground">{t("brand.subtitle")}</span>
             </div>
           </Link>
 
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.path}
@@ -46,6 +48,13 @@ export function Navbar() {
                 {item.label}
               </Link>
             ))}
+            <button
+              onClick={() => setLanguage(language === "en" ? "hi" : "en")}
+              className="rounded-lg border border-primary/30 bg-white px-4 py-2.5 font-semibold text-primary transition-colors hover:bg-primary/5"
+              aria-label="Toggle language"
+            >
+              {t("nav.lang")}
+            </button>
           </div>
         </div>
       </div>

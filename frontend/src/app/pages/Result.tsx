@@ -3,6 +3,7 @@ import { AlertCircle, CheckCircle2, Upload } from "lucide-react";
 import { motion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { getHistoryItemById, updateHistoryItem, type StoredHistoryItem, type TicketStatus } from "../lib/history";
+import { useI18n } from "../lib/i18n";
 
 type PredictionResponse = {
   decision: number;
@@ -26,6 +27,7 @@ export function Result() {
   const prediction = state?.prediction;
   const [historyItem, setHistoryItem] = useState<StoredHistoryItem | null>(null);
   const [isWrongOpen, setIsWrongOpen] = useState(false);
+  const { t } = useI18n();
 
   useEffect(() => {
     if (!image || !prediction || !historyId) {
@@ -175,7 +177,7 @@ export function Result() {
               className="rounded-3xl bg-white p-8 shadow-xl"
             >
               <div className="mb-4 flex items-baseline justify-between">
-                <h3 className="text-xl font-semibold text-foreground">Binary Output</h3>
+                <h3 className="text-xl font-semibold text-foreground">{t("result.binaryLabel")}</h3>
                 <span className="text-4xl font-bold text-foreground">{statusConfig.value}</span>
               </div>
               <div className="h-4 overflow-hidden rounded-full bg-muted/70">

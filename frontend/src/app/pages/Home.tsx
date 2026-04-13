@@ -3,9 +3,11 @@ import { Link } from "react-router";
 import { ArrowRight, CheckCircle2, Cpu, Upload, AlertCircle } from "lucide-react";
 import { motion } from "motion/react";
 import { readHistory, type StoredHistoryItem } from "../lib/history";
+import { useI18n } from "../lib/i18n";
 
 export function Home() {
   const [historyData, setHistoryData] = useState<StoredHistoryItem[]>([]);
+  const { t } = useI18n();
 
   useEffect(() => {
     setHistoryData(readHistory());
@@ -42,9 +44,9 @@ export function Home() {
             </div>
           </div>
 
-          <h1 className="mb-4 text-6xl font-bold text-foreground">Smart Dustbin Monitoring System</h1>
+          <h1 className="mb-4 text-6xl font-bold text-foreground">{t("home.title")}</h1>
           <p className="mx-auto mb-8 max-w-3xl text-2xl text-muted-foreground">
-            AI-powered detection of overflow and spill conditions across campus zones.
+            {t("home.subtitle")}
           </p>
 
           <div className="flex flex-wrap items-center justify-center gap-4">
@@ -53,13 +55,13 @@ export function Home() {
               className="inline-flex items-center gap-3 rounded-2xl bg-primary px-10 py-4 text-lg font-semibold text-white shadow-lg shadow-primary/30 transition-all hover:bg-primary/90 hover:shadow-xl hover:shadow-primary/40"
             >
               <Upload className="size-6" />
-              Upload Image
+              {t("home.uploadImage")}
             </Link>
             <Link
               to="/history"
               className="inline-flex items-center gap-3 rounded-2xl border-2 border-primary bg-white px-10 py-4 text-lg font-semibold text-primary shadow-sm transition-all hover:bg-primary/5"
             >
-              See Recent Activity
+              {t("home.recentActivityButton")}
               <ArrowRight className="size-5" />
             </Link>
           </div>
@@ -83,27 +85,27 @@ export function Home() {
           transition={{ duration: 0.5, delay: 0.4 }}
           className="rounded-3xl border border-white/80 bg-white/65 p-10 shadow-xl backdrop-blur"
         >
-          <h2 className="mb-2 text-center text-5xl font-bold text-foreground">How It Works</h2>
+          <h2 className="mb-2 text-center text-5xl font-bold text-foreground">{t("home.howItWorks")}</h2>
           <p className="mb-8 text-center text-xl text-muted-foreground">
-            Simple, fast, and accurate in three steps
+            {t("home.howItWorksSub")}
           </p>
           <div className="grid gap-5 md:grid-cols-[1fr_auto_1fr_auto_1fr] md:items-center">
             <div className="rounded-2xl bg-muted/65 p-6 text-center">
               <Upload className="mx-auto mb-3 size-10 text-primary" />
-              <h3 className="text-2xl font-semibold text-foreground">Upload Image</h3>
-              <p className="text-muted-foreground">Capture or upload dustbin photo</p>
+              <h3 className="text-2xl font-semibold text-foreground">{t("home.step.upload")}</h3>
+              <p className="text-muted-foreground">{t("home.step.uploadDesc")}</p>
             </div>
             <ArrowRight className="mx-auto hidden size-7 text-muted-foreground md:block" />
             <div className="rounded-2xl bg-muted/65 p-6 text-center">
               <Cpu className="mx-auto mb-3 size-10 text-primary" />
-              <h3 className="text-2xl font-semibold text-foreground">AI Analysis</h3>
-              <p className="text-muted-foreground">Advanced overflow detection</p>
+              <h3 className="text-2xl font-semibold text-foreground">{t("home.step.ai")}</h3>
+              <p className="text-muted-foreground">{t("home.step.aiDesc")}</p>
             </div>
             <ArrowRight className="mx-auto hidden size-7 text-muted-foreground md:block" />
             <div className="rounded-2xl bg-muted/65 p-6 text-center">
               <CheckCircle2 className="mx-auto mb-3 size-10 text-primary" />
-              <h3 className="text-2xl font-semibold text-foreground">Get Decision</h3>
-              <p className="text-muted-foreground">Instant action verdict</p>
+              <h3 className="text-2xl font-semibold text-foreground">{t("home.step.decision")}</h3>
+              <p className="text-muted-foreground">{t("home.step.decisionDesc")}</p>
             </div>
           </div>
         </motion.div>
@@ -114,9 +116,9 @@ export function Home() {
           transition={{ duration: 0.5, delay: 0.5 }}
           className="rounded-3xl border border-white/80 bg-white/65 p-10 shadow-xl backdrop-blur"
         >
-          <h2 className="text-center text-5xl font-bold text-foreground">See It In Action</h2>
+          <h2 className="text-center text-5xl font-bold text-foreground">{t("home.seeInAction")}</h2>
           <p className="mb-8 mt-2 text-center text-xl text-muted-foreground">
-            Real-time AI decision-making preview
+            {t("home.seeInActionSub")}
           </p>
           <div className="grid gap-6 lg:grid-cols-2">
             <div className="overflow-hidden rounded-2xl bg-muted">
@@ -161,16 +163,16 @@ export function Home() {
           transition={{ duration: 0.5, delay: 0.6 }}
           className="overflow-hidden rounded-3xl bg-gradient-to-r from-[#09b89d] to-[#1c70f0] p-10 text-center text-white shadow-2xl"
         >
-          <h2 className="mb-2 text-5xl font-bold">Start Monitoring Now</h2>
+          <h2 className="mb-2 text-5xl font-bold">{t("home.startNow")}</h2>
           <p className="mb-7 text-2xl text-white/90">
-            Upload your first image and get instant AI-powered analysis
+            {t("home.startNowSub")}
           </p>
           <Link
             to="/upload"
             className="inline-flex items-center gap-3 rounded-2xl bg-white px-10 py-4 text-2xl font-semibold text-primary shadow-lg transition-transform hover:scale-[1.02]"
           >
             <Upload className="size-6" />
-            Upload Image Now
+            {t("home.uploadNow")}
           </Link>
         </motion.div>
 
@@ -181,9 +183,9 @@ export function Home() {
           className="rounded-3xl border border-white/80 bg-white/65 p-8 shadow-xl backdrop-blur"
         >
           <div className="mb-5 flex items-center justify-between">
-            <h2 className="text-4xl font-bold text-foreground">Recent Activity</h2>
+            <h2 className="text-4xl font-bold text-foreground">{t("home.recentActivity")}</h2>
             <Link to="/history" className="text-xl font-semibold text-primary hover:underline">
-              View All
+              {t("home.viewAll")}
             </Link>
           </div>
 

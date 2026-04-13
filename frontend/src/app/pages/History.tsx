@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertCircle, CheckCircle2, Calendar, MapPin, Ticket } from "lucide-react";
 import { motion } from "motion/react";
 import { readHistory, type StoredHistoryItem } from "../lib/history";
+import { useI18n } from "../lib/i18n";
 
 export function History() {
   const [filter, setFilter] = useState<"all" | "required" | "no-action">("all");
   const [historyData, setHistoryData] = useState<StoredHistoryItem[]>([]);
+  const { t } = useI18n();
 
   useEffect(() => {
     setHistoryData(readHistory());
@@ -78,6 +80,38 @@ export function History() {
     return [...wardMap.entries()].sort((a, b) => b[1].total - a[1].total);
   }, [historyData]);
 
+  const topHotspots = useMemo(() => {
+    const now = Date.now();
+    const threeDaysAgo = now - 3 * 24 * 60 * 60 * 1000;
+    const sevenDaysAgo = now - 7 * 24 * 60 * 60 * 1000;
+    const hotspotMap = new Map<string, { score: number; recentRequired: number; totalRequired: number }>();
+
+    historyData.forEach((item) => {
+      const ward = item.geoTag?.ward ?? "Ward not captured";
+      const timestamp = new Date(item.timestamp).getTime();
+      const current = hotspotMap.get(ward) ?? { score: 0, recentRequired: 0, totalRequired: 0 };
+
+      if (item.result === 1) {
+        current.totalRequired += 1;
+        current.score += 1;
+        if (timestamp >= sevenDaysAgo) {
+          current.score += 1;
+        }
+        if (timestamp >= threeDaysAgo) {
+          current.recentRequired += 1;
+          current.score += 2;
+        }
+      }
+
+      hotspotMap.set(ward, current);
+    });
+
+    return [...hotspotMap.entries()]
+      .filter(([, value]) => value.totalRequired > 0)
+      .sort((a, b) => b[1].score - a[1].score)
+      .slice(0, 3);
+  }, [historyData]);
+
   return (
     <div className="min-h-[calc(100vh-80px)] bg-gradient-to-br from-[#e8f7f3] via-[#eef7ff] to-[#f6fbff] px-6 py-16">
       <div className="mx-auto max-w-7xl">
@@ -86,9 +120,9 @@ export function History() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-10"
         >
-          <h1 className="mb-2 text-4xl font-bold text-foreground">Analysis History</h1>
+          <h1 className="mb-2 text-4xl font-bold text-foreground">{t("history.title")}</h1>
           <p className="text-lg text-muted-foreground">
-            Review previous dustbin monitoring results
+            {t("history.subtitle")}
           </p>
         </motion.div>
 
@@ -149,7 +183,7 @@ export function History() {
           </div>
 
           <div className="rounded-2xl bg-white p-6 shadow-lg">
-            <h2 className="mb-4 text-xl font-semibold text-foreground">Ward Summary Table</h2>
+            <h2 className="mb-4 text-xl font-semibold text-foreground">{t("history.wardTable")}</h2>
             <div className="overflow-hidden rounded-xl border border-border">
               <div className="grid grid-cols-4 bg-muted/40 px-4 py-3 text-sm font-semibold text-foreground">
                 <div>Ward</div>
@@ -174,9 +208,45 @@ export function History() {
               )}
             </div>
             <p className="mt-3 text-sm text-muted-foreground">
-              Paste coordinates in maps to get to the location.
+              {t("history.mapsHint")}
             </p>
           </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.18 }}
+          className="mb-10 rounded-2xl bg-white p-6 shadow-lg"
+        >
+          <h2 className="text-xl font-semibold text-foreground">{t("history.hotspots")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{t("history.hotspotsSub")}</p>
+          {topHotspots.length > 0 ? (
+            <div className="mt-4 grid gap-4 md:grid-cols-3">
+              {topHotspots.map(([ward, value], index) => (
+                <div key={ward} className="rounded-xl border border-border bg-muted/30 p-4">
+                  <div className="text-sm font-semibold text-muted-foreground">#{index + 1}</div>
+                  <div className="mt-1 text-lg font-bold text-foreground">{ward}</div>
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    {t("history.predictedRisk")}:{" "}
+                    <span className="font-semibold text-destructive">{value.score}</span>
+                  </div>
+                  <div className="mt-1 text-sm text-muted-foreground">
+                    Recent action-required:{" "}
+                    <span className="font-semibold text-foreground">{value.recentRequired}</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Total action-required:{" "}
+                    <span className="font-semibold text-foreground">{value.totalRequired}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-4 rounded-xl bg-muted/40 p-4 text-sm text-muted-foreground">
+              {t("history.noHotspots")}
+            </div>
+          )}
         </motion.div>
 
         {/* Filter Tabs */}
@@ -194,7 +264,7 @@ export function History() {
                 : "bg-white text-foreground shadow-md hover:shadow-lg"
             }`}
           >
-            All
+            {t("history.filter.all")}
           </button>
           <button
             onClick={() => setFilter("required")}
@@ -204,7 +274,7 @@ export function History() {
                 : "bg-white text-foreground shadow-md hover:shadow-lg"
             }`}
           >
-            Action Required
+            {t("history.filter.required")}
           </button>
           <button
             onClick={() => setFilter("no-action")}
@@ -214,7 +284,7 @@ export function History() {
                 : "bg-white text-foreground shadow-md hover:shadow-lg"
             }`}
           >
-            No Action
+            {t("history.filter.noAction")}
           </button>
         </motion.div>
 

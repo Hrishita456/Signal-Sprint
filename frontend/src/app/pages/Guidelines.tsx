@@ -1,7 +1,9 @@
 import { motion } from "motion/react";
 import { Trash2, AlertTriangle, Leaf, CheckCircle, XCircle } from "lucide-react";
+import { useI18n } from "../lib/i18n";
 
 export function Guidelines() {
+  const { t } = useI18n();
   const rules = [
     {
       title: "Authorized Dustbins",
@@ -96,7 +98,7 @@ export function Guidelines() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-12"
         >
-          <h1 className="mb-2 text-4xl font-bold text-foreground">Detection Guidelines</h1>
+          <h1 className="mb-2 text-4xl font-bold text-foreground">{t("guidelines.title")}</h1>
           <p className="text-lg text-muted-foreground">
             Understanding the AI detection criteria and decision-making process
           </p>
